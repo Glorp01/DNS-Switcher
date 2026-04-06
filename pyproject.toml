@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dns-switcher"
+version = "2.0.0"
+description = "Cross-platform IPv4 DNS switching dashboard for Windows and macOS"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["dns", "network", "windows", "macos", "tkinter"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: MacOS",
+  "Topic :: System :: Networking",
+]
+
+[project.scripts]
+dns-switcher = "dns_switcher_app:main"
+
+[project.gui-scripts]
+dns-switcher-ui = "dns_switcher_app:main"
+
+[tool.setuptools]
+py-modules = ["dns_switcher_app"]

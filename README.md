@@ -1,25 +1,35 @@
 # DNS Switcher
 
-A small Windows desktop app for switching IPv4 DNS servers on your PC.
+`DNS Switcher` is a small cross-platform desktop app for switching IPv4 DNS settings on Windows and macOS.
 
-It uses:
+It now includes:
 
-- `Tkinter` for the UI
-- PowerShell to read adapter and DNS state
-- Windows DNS commands to apply static DNS or restore automatic DNS
+- A cleaner dashboard-style Tkinter UI
+- A built-in activity console for recent actions
+- Windows adapter support through PowerShell + `netsh`
+- macOS network service support through `networksetup`
+- One-click public DNS presets plus custom IPv4 DNS entry
 
-## What it does
+## Features
 
-- Detects your Windows network adapters
-- Shows the current IPv4 DNS mode and active DNS servers
-- Applies one-click presets like Cloudflare, Google, Quad9, OpenDNS, AdGuard, and Control D
-- Lets you enter your own custom IPv4 DNS servers
-- Restores automatic IPv4 DNS from DHCP
-- Flushes the DNS cache after a change
+- Detects Windows adapters or macOS network services
+- Shows current DNS mode and the active/manual IPv4 DNS servers it can detect
+- Applies presets like Cloudflare, Google, Quad9, OpenDNS, AdGuard, and Control D
+- Lets you set custom preferred and alternate IPv4 DNS servers
+- Restores automatic DNS from DHCP or system-managed settings
+- Flushes the DNS cache after a change when supported
 
-## Run it
+## Requirements
 
-From this folder:
+- Python 3.10+
+- Tkinter available in your Python install
+- Windows or macOS
+
+No third-party Python packages are required.
+
+## Run It
+
+Windows:
 
 ```powershell
 py dns_switcher.pyw
@@ -29,17 +39,49 @@ Or double-click:
 
 `Launch DNS Switcher.bat`
 
-## Important
+macOS:
 
-- This app is for Windows only.
-- Reading adapter info works as a normal user.
-- Changing DNS requires administrator privileges.
-- If you start it normally, it can relaunch itself with elevation when you try to apply a change.
+```bash
+python3 dns_switcher_app.py
+```
 
-## Quick smoke test
+## Optional Install
 
-This does not change your DNS settings:
+You can also install it as a local package from this folder:
+
+```bash
+pip install .
+```
+
+Then launch it with:
+
+```bash
+dns-switcher
+```
+
+## Permission Model
+
+- Windows: reading adapter info works as a normal user. Applying DNS changes requires administrator rights, and the app can relaunch itself with UAC.
+- macOS: reading service info works as a normal user. Applying DNS changes uses the system administrator password prompt through AppleScript.
+
+## Quick Smoke Test
+
+This only inspects available adapters/services and prints JSON.
+
+Windows:
 
 ```powershell
 py dns_switcher.pyw --self-test
 ```
+
+macOS:
+
+```bash
+python3 dns_switcher_app.py --self-test
+```
+
+## Project Layout
+
+- `dns_switcher_app.py` contains the main cross-platform app
+- `dns_switcher.pyw` is a thin Windows launcher wrapper
+- `pyproject.toml` makes the repo easier to install and share on GitHub
