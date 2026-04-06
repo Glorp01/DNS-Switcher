@@ -7,10 +7,10 @@ APP_NAME="DNS Switcher.app"
 
 case "$(uname -m)" in
   arm64|aarch64)
-    ASSET_NAME="DNS-Switcher-macos-apple-silicon.zip"
+    ASSET_NAME="DNS-Switcher-macos-apple-silicon.dmg"
     ;;
   x86_64)
-    ASSET_NAME="DNS-Switcher-macos-intel.zip"
+    ASSET_NAME="DNS-Switcher-macos-intel.dmg"
     ;;
   *)
     echo "Unsupported macOS architecture: $(uname -m)" >&2
@@ -19,7 +19,11 @@ case "$(uname -m)" in
 esac
 
 TEMP_DIR="$(mktemp -d)"
+MOUNT_DIR="${TEMP_DIR}/mount"
 cleanup() {
+  if mount | grep -q "${MOUNT_DIR}"; then
+    hdiutil detach "${MOUNT_DIR}" -quiet || true
+  fi
   rm -rf "${TEMP_DIR}"
 }
 trap cleanup EXIT
@@ -48,17 +52,15 @@ fi
 mkdir -p "${INSTALL_DIR}"
 
 ARCHIVE_PATH="${TEMP_DIR}/${ASSET_NAME}"
-EXTRACT_DIR="${TEMP_DIR}/extracted"
-
 echo "Downloading ${ASSET_NAME} from ${REPO}..."
 curl -fL "${DOWNLOAD_URL}" -o "${ARCHIVE_PATH}"
 
-mkdir -p "${EXTRACT_DIR}"
-ditto -x -k "${ARCHIVE_PATH}" "${EXTRACT_DIR}"
+mkdir -p "${MOUNT_DIR}"
+hdiutil attach "${ARCHIVE_PATH}" -nobrowse -mountpoint "${MOUNT_DIR}" -quiet
 
-APP_PATH="$(find "${EXTRACT_DIR}" -maxdepth 1 -name "*.app" -print -quit)"
-if [[ -z "${APP_PATH}" ]]; then
-  echo "The downloaded archive did not contain a macOS app bundle." >&2
+APP_PATH="${MOUNT_DIR}/${APP_NAME}"
+if [[ ! -d "${APP_PATH}" ]]; then
+  echo "The downloaded DMG did not contain ${APP_NAME}." >&2
   exit 1
 fi
 
@@ -66,6 +68,8 @@ TARGET_PATH="${INSTALL_DIR}/${APP_NAME}"
 rm -rf "${TARGET_PATH}"
 cp -R "${APP_PATH}" "${TARGET_PATH}"
 xattr -dr com.apple.quarantine "${TARGET_PATH}" 2>/dev/null || true
+
+hdiutil detach "${MOUNT_DIR}" -quiet || true
 
 echo "Installed ${APP_NAME} to ${TARGET_PATH}"
 open "${TARGET_PATH}"

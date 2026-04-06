@@ -2,7 +2,7 @@
 
 `DNS Switcher` is a cross-platform desktop app for switching IPv4 DNS settings on Windows and macOS.
 
-It now includes:
+It includes:
 
 - A dashboard-style Tkinter UI
 - A built-in activity console
@@ -19,14 +19,6 @@ It now includes:
 - Lets you set custom preferred and alternate IPv4 DNS servers
 - Restores automatic DNS from DHCP or system-managed settings
 - Flushes the DNS cache after a change when supported
-
-## Requirements
-
-- Python 3.10+
-- Tkinter available in your Python install
-- Windows or macOS
-
-No third-party runtime Python packages are required.
 
 ## Run From Source
 
@@ -57,24 +49,24 @@ open "Launch DNS Switcher.command"
 
 ### macOS
 
-Install the latest release from GitHub in Terminal:
+Install the latest DMG from GitHub in Terminal:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Glorp01/DNS-Switcher/main/installers/install-macos.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Glorp01/DNS-Switcher/master/installers/install-macos.sh | bash
 ```
 
-The script downloads the correct release asset for Intel or Apple Silicon and installs `DNS Switcher.app` into `/Applications` when writable, otherwise `~/Applications`.
+The script downloads the correct DMG for Intel or Apple Silicon, installs `DNS Switcher.app`, and opens it.
 
 ### Windows
 
-Install the latest release from PowerShell:
+Install the latest setup package from PowerShell:
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Glorp01/DNS-Switcher/main/installers/install-windows.ps1 -OutFile install-dns-switcher.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/Glorp01/DNS-Switcher/master/installers/install-windows.ps1 -OutFile install-dns-switcher.ps1
 powershell -ExecutionPolicy Bypass -File .\install-dns-switcher.ps1
 ```
 
-That downloads the latest Windows release asset and installs `DNS Switcher.exe` into `%LOCALAPPDATA%\DNS Switcher`.
+That downloads the latest `DNS Switcher Setup` installer, installs the app into `%LOCALAPPDATA%\Programs\DNS Switcher`, and launches it.
 
 ## Optional Python Install
 
@@ -111,24 +103,27 @@ macOS:
 python3 dns_switcher_app.py --self-test
 ```
 
-## GitHub Release Workflow
+## Make A GitHub Release
 
 This repo includes a GitHub Actions workflow at `.github/workflows/release.yml`.
 
-It builds:
+When you push a tag that starts with `v`, GitHub Actions builds and publishes:
 
-- `DNS-Switcher-windows-x64.zip`
-- `DNS-Switcher-macos-intel.zip`
-- `DNS-Switcher-macos-apple-silicon.zip`
+- `DNS-Switcher-Setup-x64.exe`
+- `DNS-Switcher-macos-intel.dmg`
+- `DNS-Switcher-macos-apple-silicon.dmg`
 
-To publish downloadable assets on GitHub:
+To create the Releases page and upload those assets:
 
 ```bash
+git add .
+git commit -m "Prepare release"
+git push origin master
 git tag v2.0.0
 git push origin v2.0.0
 ```
 
-Pushing a tag that starts with `v` triggers the workflow and uploads the release files to the matching GitHub release.
+After the workflow finishes, GitHub will show a release entry with downloadable installer assets.
 
 ## Local Release Build
 
@@ -139,6 +134,11 @@ python3 -m pip install -r requirements-build.txt
 python3 scripts/build_release.py
 ```
 
+Notes:
+
+- Windows local builds need Inno Setup 6 installed to produce the setup `.exe`
+- macOS local builds use `hdiutil` to produce the `.dmg`
+
 The packaged asset is written into the `release/` directory.
 
 ## Project Layout
@@ -147,5 +147,6 @@ The packaged asset is written into the `release/` directory.
 - `dns_switcher.pyw` is the Windows launcher wrapper
 - `Launch DNS Switcher.command` is a simple macOS source launcher
 - `scripts/build_release.py` creates packaged release assets
+- `packaging/windows/dns_switcher.iss` defines the Windows installer
 - `installers/` contains terminal install scripts for GitHub releases
-- `.github/workflows/release.yml` builds Windows and macOS release files
+- `.github/workflows/release.yml` builds and publishes release files
