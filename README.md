@@ -103,37 +103,6 @@ macOS:
 python3 dns_switcher_app.py --self-test
 ```
 
-## Make A GitHub Release
-
-This repo includes a GitHub Actions workflow at `.github/workflows/release.yml`.
-
-When you push a tag that starts with `v`, GitHub Actions builds and publishes:
-
-- `DNS-Switcher-Setup-x64.exe`
-- `DNS-Switcher-macos-intel.dmg`
-- `DNS-Switcher-macos-apple-silicon.dmg`
-
-To create the Releases page and upload those assets:
-
-```bash
-git add .
-git commit -m "Prepare release"
-git push origin master
-git tag v2.0.0
-git push origin v2.0.0
-```
-
-After the workflow finishes, GitHub will show a release entry with downloadable installer assets.
-
-## Local Release Build
-
-If you want to build release assets yourself:
-
-```bash
-python3 -m pip install -r requirements-build.txt
-python3 scripts/build_release.py
-```
-
 Notes:
 
 - Windows local builds need Inno Setup 6 installed to produce the setup `.exe`
