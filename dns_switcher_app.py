@@ -222,15 +222,30 @@ def is_windows_admin() -> bool:
         return False
 
 
-def relaunch_as_admin() -> bool:
+def application_entrypoint() -> tuple[str, str]:
+    if getattr(sys, "frozen", False):
+        executable = Path(sys.executable).resolve()
+        return str(executable), str(executable.parent)
+
     script_path = Path(__file__).resolve()
-    params = subprocess.list2cmdline([str(script_path), *sys.argv[1:]])
+    return str(script_path), str(script_path.parent)
+
+
+def relaunch_as_admin() -> bool:
+    target, working_directory = application_entrypoint()
+    if getattr(sys, "frozen", False):
+        executable = target
+        params = subprocess.list2cmdline(sys.argv[1:])
+    else:
+        executable = sys.executable
+        params = subprocess.list2cmdline([target, *sys.argv[1:]])
+
     result = ctypes.windll.shell32.ShellExecuteW(
         None,
         "runas",
-        sys.executable,
+        executable,
         params,
-        str(script_path.parent),
+        working_directory,
         1,
     )
     return result > 32
